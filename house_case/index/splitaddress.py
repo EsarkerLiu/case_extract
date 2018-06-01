@@ -37,7 +37,7 @@ def local_index(load_dict):
 
 	for i in start_w:
 		if(judge_res.find(i) > -1):
-			print(i+" "+judge_res),
+#			print(i+" "+judge_res),
 			head_s = (judge_res.split(i,1))[0]
 			head_addr = head_s
 

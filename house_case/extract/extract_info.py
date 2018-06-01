@@ -91,16 +91,15 @@ def extract(source_case):
 	index_addr_dict = splitaddress.local_index(source_case)
 	if not index_addr_dict:
 		return
-	print("index:%s" % index_addr_dict)
+#	print("index:%s" % index_addr_dict)
 	norm_addr_dict = normalized.addr2norm(index_addr_dict)
-	print("norm:%s" % norm_addr_dict)
+#	print("norm:%s" % norm_addr_dict)
 
 	case_normal = {}
 	house_info = []
 	house_addr_info = {}
 	judge_res = norm_addr_dict["judgement_result"]
 	house_number = get_number(judge_res)
-	print("house_num:",  house_number)
 
 	#house_info["h_number"] = get_number(judge_res)["h_number"]
 
@@ -113,7 +112,7 @@ def extract(source_case):
 	case_normal["name"] = get_name(judge_res)
 	case_normal["house"] = house_info
 
-	print("extract:%s" % case_normal)
+#	print("extract:%s" % case_normal)
 	return case_normal
 
 def batch_extract(source_json,batch_num):
