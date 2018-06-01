@@ -141,11 +141,14 @@ def addr2norm(case_json):
 #	return new_dict
 
 def write_addr_json(source_dict, _new_dict):
+	if not _new_dict:
+		print("new dict is null!" )
 	try:	
-		with open(case_normal_json, "w",encoding='gbk') as w_f:
+		with open(source_dict, "w",encoding='gbk') as w_f:
 			json.dump(_new_dict,w_f,ensure_ascii=False)
 	except IOError as ioerr:
 		print("write Error!")
+	print("%s Writed data in %s !" % (sys._getframe().f_code.co_name ,source_dict))
 """
 if __name__ == '__main__':
 	_new_dict = addr2norm()		

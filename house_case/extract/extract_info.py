@@ -17,25 +17,24 @@ house_info_json = []
 
 def get_addr(judge_res):
 	pattern = re.compile(r'.*坐落于(.*?)的房产.*')
-	match_addr = re.match(pattern, judge_res)
+	match_addr = re.search(pattern, judge_res)
 	if(match_addr):
 		return match_addr.group(1)
 #		print("(",match_addr.group(1),")")
 
 def get_name(judge_res):
-	pattern = re.compile(r'(被告|被执行人|被申请人|担保人|被上诉人|被申诉人|被告人|二审被上诉人|抵押人|罪犯)(.*)(共有|共同所有|将其所有|名下|所有|所有用于抵押|抵押|抵押担保|质押|最高额抵押担保|用于抵押|坐落于|享有|位于)')
-	match_addr = re.match(pattern, judge_res)
+	pattern = re.compile(r'(被告|被执行人|被申请人|担保人|被上诉人|被申诉人|被告人|二审被上诉人|抵押人|罪犯)(.*?)(共有|共同所有|将其所有|名下|所有|所有用于抵押|抵押|抵押担保|质押|最高额抵押担保|用于抵押的|坐落于|享有|位于)')
+	match_addr = re.search(pattern, judge_res)
 	if(match_addr):
 		return match_addr.group(2)
 #		print("(",match_addr.group(1),")")
 
 def get_number(judge_res):
 	"""结尾符号等存在优先顺序，应将优先权大的排在前面，以免丢失信息;"""
-	res_num = []
 	res_hos = {}
 
-	pattern1 = re.compile(r'(【|\[|（|；)(房产证|房产证号|房屋所有权证号|权证号码|房权证号|产权证号|房地产权证号|登记证明号)(：)(.*)号(】|\]|）|；|，|、)')
-	pattern2 = re.compile(r'(土地证号|国有土地使用权证号|土地使用证号)(：)(.*?)号(】|\]|）|；|，|、)')
+	pattern1 = re.compile(r'(【|\[|（|；)(房产证|房产证号|房屋所有权证号|权证号码|房权证号|产权证号|房地产权证号|登记证明号)(：)(.*?号)(，土|；土|，|；|】|\]|）|、)')
+	pattern2 = re.compile(r'(土地证号|国有土地使用权证号|土地使用证号)(：)(.*?号)(】|\]|）|；|，|、)')
 
 	match_house = re.search(pattern1, judge_res)
 	if(match_house != None):
@@ -45,9 +44,8 @@ def get_number(judge_res):
 	if(match_land != None):
 		res_hos["g_number"] = match_land.group(3)
 
-	res_num.append(res_hos)
 	
-	return res_num
+	return res_hos
 
 #		print("(",match_addr.group(1),")")
 
@@ -56,7 +54,7 @@ def get_value(judge_res):
 	index_value = 3
 	flag_p = 1
 
-	pattern1 = re.compile(r'(最高限额|最高额|最高抵押金额|最高债权数额|最高本金限额|最高抵押担保金额)(为|人民币|：?)(.*?)(万元)')
+	pattern1 = re.compile(r'(最高限额|最高额|最高抵押金额|最高抵押额|最高债权数额|最高本金限额|最高抵押担保金额)(为|人民币|：?)(.*?)(万元)')
 	pattern2 = re.compile(r'(在人民币|在)(.*?)(万元)[(的)(最高金额)(范围)]')#((的?)(最高金额?))(范围)')
 	pattern3 = re.compile(r'(在)(.*?)万元和(.*?)(万元)')
 
@@ -93,23 +91,29 @@ def extract(source_case):
 	index_addr_dict = splitaddress.local_index(source_case)
 	if not index_addr_dict:
 		return
+	print("index:%s" % index_addr_dict)
 	norm_addr_dict = normalized.addr2norm(index_addr_dict)
+	print("norm:%s" % norm_addr_dict)
 
 	case_normal = {}
 	house_info = []
 	house_addr_info = {}
 	judge_res = norm_addr_dict["judgement_result"]
+	house_number = get_number(judge_res)
+	print("house_num:",  house_number)
 
 	#house_info["h_number"] = get_number(judge_res)["h_number"]
-	house_info.append(get_number(judge_res))
 
 	house_addr_info["address"] = get_addr(judge_res)
 	house_addr_info["value"] = get_value(judge_res)
+	house_addr_info.update(house_number)
 	house_info.append(house_addr_info)
 
-	case_normal["house"] = house_info
 	case_normal["_id"] = norm_addr_dict["_id"]
 	case_normal["name"] = get_name(judge_res)
+	case_normal["house"] = house_info
+
+	print("extract:%s" % case_normal)
 	return case_normal
 
 def batch_extract(source_json,batch_num):
@@ -130,12 +134,12 @@ def batch_extract(source_json,batch_num):
 
 		str_case = case_info_dict[case_i]
 		ext_house_info = extract(str_case)
-		if case_extr_info_dict:
+		if ext_house_info:
 			case_extr_info_dict.append(ext_house_info)
 
 	normalized.write_addr_json(case_extracted_json,case_extr_info_dict)	
 
 
 if __name__ == '__main__':
-	batch_num = 100
+	batch_num = 50
 	batch_extract(case_source_json,batch_num)

@@ -34,16 +34,20 @@ def local_index(load_dict):
 #	for case_id in range(length):
 	new_dict = {}
 	judge_res = load_dict["judgement_result"]
+
 	for i in start_w:
 		if(judge_res.find(i) > -1):
+			print(i+" "+judge_res),
 			head_s = (judge_res.split(i,1))[0]
 			head_addr = head_s
+
 			if(head_s.find(find_sg[0]) > -1):
 				head_addr= (head_s.rsplit(find_sg[0],1))[1]
 			if(head_addr.find(find_sg[1]) > -1):
 				head_addr = (head_addr.rsplit(find_sg[1],1))[1]
 			first_s = (judge_res.split(i,1))[1] #关键词后半段
-#			print(str(case_id)+":"+ head_addr + i + first_s)
+
+			#print(str(case_id)+":"+ head_addr + i + first_s)
 			find_house = False
 			temp_addr = first_s
 			for j in find_sg:
@@ -58,7 +62,7 @@ def local_index(load_dict):
 				#	new_dict.append(first_s)
 					address = (temp_addr.split(j))[0]	#判断是否含有句号，有则取句号
 					temp_addr = address
-#					print(str(case_id) + ":" + address)
+
 			if(find_house):
 				address = head_addr + i + address
 				#addr_dict.append(address)
